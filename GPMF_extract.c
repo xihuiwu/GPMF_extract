@@ -3,8 +3,8 @@
 #include <string.h>
 #include <stdint.h>
 
-#include "../GPMF_parser.h"
-#include "GPMF_mp4reader.h"
+#include "source/GPMF_parser.h"
+#include "source/GPMF_mp4reader.h"
 
 #define MAX_UNITS		64
 #define MAX_UNITLEN		8
