@@ -29,7 +29,7 @@
 #include <sys/stat.h>
 
 #include "GPMF_mp4reader.h"
-#include "../GPMF_common.h"
+#include "GPMF_common.h"
 
 #define PRINT_MP4_STRUCTURE		0
 
