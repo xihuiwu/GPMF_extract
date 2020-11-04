@@ -118,7 +118,7 @@ int main(int argc, char* argv[]) {
 	uint32_t gps = STR2FOURCC("GPS5");
 
 	char* filename;
-	*filename = "../samples/hero8.mp4";
+	filename = "../samples/hero8.mp4";
 	size_t mp4 = OpenMP4Source(filename, MOV_GPMF_TRAK_TYPE, MOV_GPMF_TRAK_SUBTYPE);
 	if (mp4 == 0) {
 		printf("error: this file is either invalid or it does not contain GPMF data\n\n");
