@@ -23,7 +23,7 @@
 #ifndef _GPMF_MP4READER_H
 #define _GPMF_MP4READER_H
 
-#include "../GPMF_parser.h"
+#include "GPMF_parser.h"
 
 #ifdef __cplusplus
 extern "C" {
