@@ -53,9 +53,9 @@ void getData(GPMF_stream *ms, size_t mp4, uint32_t num_payloads, uint32_t four_c
 						for (j = 0; j < num_elements; j++) {
 							double val = *ptr;
 							ptr++;
-							printf(".2f ", val);
+							printf("%.2f ", val);
 						}
-						printf("/n")
+						printf("/n");
 					}
 				}
 				free(tmpbuffer);
