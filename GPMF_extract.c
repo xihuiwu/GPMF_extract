@@ -32,73 +32,30 @@ void getData(GPMF_stream *ms, size_t mp4, uint32_t num_payloads, uint32_t four_c
 		// start reading the buffer
 		while (GPMF_OK == GPMF_FindNext(ms, STR2FOURCC("STRM"), GPMF_RECURSE_LEVELS | GPMF_TOLERANT)) {
 			if (GPMF_VALID_FOURCC(four_cc)) {
-				if (GPMF_OK == GPMF_FindNext(ms, four_cc, GPMF_RECURSE_LEVELS | GPMF_TOLERANT)) {
+				if (GPMF_OK != GPMF_FindNext(ms, four_cc, GPMF_RECURSE_LEVELS | GPMF_TOLERANT)) {
 					continue;
 				}
 			}
 
-			char* rawdata = (char*)GPMF_RawData(ms);
 			uint32_t key = GPMF_Key(ms);
-			GPMF_SampleType type = GPMF_Type(ms);
 			uint32_t num_samples = GPMF_Repeat(ms);
 			uint32_t num_elements = GPMF_ElementsInStruct(ms);
 			uint32_t buffersize = num_samples * num_elements * sizeof(double);
-			GPMF_stream ms_cp;
-			double* ptr, * tmpbuffer = (double*)malloc(buffersize);
-
-			char units[MAX_UNITS][MAX_UNITLEN] = { "" };
-			uint32_t num_units = 1;
-
-			char complextype[MAX_UNITS] = { "" };
-			uint32_t type_samples = 1;
+			double* tmpbuffer = (double*)malloc(buffersize);
 
 			if (num_samples && tmpbuffer) {
 				uint32_t i, j;
 
-				// get units for the specific FOUR CC
-				GPMF_CopyState(ms, &ms_cp);
-				if (GPMF_OK == GPMF_FindPrev(&ms_cp, GPMF_KEY_SI_UNITS, GPMF_CURRENT_LEVEL | GPMF_TOLERANT) ||
-					GPMF_OK == GPMF_FindPrev(&ms_cp, GPMF_KEY_UNITS, GPMF_CURRENT_LEVEL | GPMF_TOLERANT)) {
-					char* data = (char*)GPMF_RawData(&ms_cp);
-					uint32_t ssize = GPMF_StructSize(&ms_cp);
-					if (ssize > MAX_UNITLEN - 1) ssize = MAX_UNITLEN - 1;
-					num_units = GPMF_Repeat(&ms_cp);
-
-					for (i = 0; i < num_units && i < MAX_UNITS; i++) {
-						memcpy(units[i], data, ssize);
-						units[i][ssize] = 0;
-						data += ssize;
-					}
-				}
-				// get complex type
-				GPMF_CopyState(ms, &ms_cp);
-				type_samples = 0;
-				if (GPMF_OK == GPMF_FindPrev(&ms_cp, GPMF_KEY_TYPE, GPMF_CURRENT_LEVEL | GPMF_TOLERANT)) {
-					char* data = (char*)GPMF_RawData(&ms_cp);
-					uint32_t ssize = GPMF_StructSize(&ms_cp);
-					if (ssize > MAX_UNITLEN - 1) ssize = MAX_UNITLEN - 1;
-					type_samples = GPMF_Repeat(&ms_cp);
-
-					for (i = 0; i < type_samples && i < MAX_UNITS; i++) {
-						complextype[i] = data[i];
-					}
-				}
-
 				// extract samples into tmpbuffer
 				if (GPMF_OK == GPMF_ScaledData(ms, tmpbuffer, buffersize, 0, num_samples, GPMF_TYPE_DOUBLE)) {
-					ptr = tmpbuffer;
-					int pos = 0;
+					double* ptr = tmpbuffer;
 					for (i = 0; i < num_samples; i++) {
 						for (j = 0; j < num_elements; j++) {
-							if (type == GPMF_TYPE_STRING_ASCII) {
-								printf("%c", rawdata[pos]);
-								pos++;
-								ptr++;
-							}
-							else if (type_samples = 0) {
-								printf("%.3f%s, ", *ptr++, units[j % num_units]);
-							}
+							double val = *ptr;
+							ptr++;
+							printf(".2f ", val);
 						}
+						printf("/n")
 					}
 				}
 				free(tmpbuffer);
