@@ -46,7 +46,7 @@ void getData(GPMF_stream *ms, size_t mp4, uint32_t num_payloads, uint32_t four_c
 			if (num_samples && tmpbuffer) {
 				uint32_t i, j;
 
-				// extract samples into tmpbuffer
+				// extract all samples from tmpbuffer
 				if (GPMF_OK == GPMF_ScaledData(ms, tmpbuffer, buffersize, 0, num_samples, GPMF_TYPE_DOUBLE)) {
 					double* ptr = tmpbuffer;
 					for (i = 0; i < num_samples; i++) {
@@ -55,7 +55,7 @@ void getData(GPMF_stream *ms, size_t mp4, uint32_t num_payloads, uint32_t four_c
 							ptr++;
 							printf("%.2f ", val);
 						}
-						printf("/n");
+						printf("\n");
 					}
 				}
 				free(tmpbuffer);
