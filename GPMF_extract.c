@@ -94,14 +94,19 @@ void getData(size_t mp4, uint32_t four_cc) {
 }
 
 int main(int argc, char* argv[]) {
+	if (argc == 1) {
+		printf("error: there is no specified video file\n\n");
+		return -1;
+	}
+
 	double metadatalength;
 	uint32_t accl = STR2FOURCC("ACCL");
 	uint32_t gyro = STR2FOURCC("GYRO");
 	uint32_t gps = STR2FOURCC("GPS5");
 
-	char* filename;
-	filename = "samples/hero8.mp4";
-	size_t mp4 = OpenMP4Source(filename, MOV_GPMF_TRAK_TYPE, MOV_GPMF_TRAK_SUBTYPE);
+	/*char* filename;
+	filename = "samples/hero8.mp4";*/
+	size_t mp4 = OpenMP4Source(argv[1], MOV_GPMF_TRAK_TYPE, MOV_GPMF_TRAK_SUBTYPE);
 	if (mp4 == 0) {
 		printf("error: this file is either invalid or it does not contain GPMF data\n\n");
 		return -1;
@@ -112,7 +117,9 @@ int main(int argc, char* argv[]) {
 		// get frame rate of the video file
 		uint32_t rate_num, rate_de;
 		uint32_t frame_num = GetVideoFrameRateAndCount(mp4, &rate_num, &rate_de);
-		printf("Video Frame Rate: %.3f\nNumber of Frames: %d\n", (float)rate_num/rate_de, frame_num);
+		printf("Video Frame Rate: %.3f\nNumber of Frames: %d\n\n", (float)rate_num/rate_de, frame_num);
+
+		printf("begin extracting...\n");
 
 		// read acceleration data
 		getData(mp4, accl);
@@ -122,6 +129,7 @@ int main(int argc, char* argv[]) {
 
 		// read GPS data
 		getData(mp4, gps);
+		printf("done extraction\n\n");
 	}
 
 	// end the stream
