@@ -39,7 +39,8 @@ void getData(GPMF_stream *ms, size_t mp4, uint32_t num_payloads, uint32_t four_c
 	uint32_t* payload;
 	uint32_t payloadsize;
 	GPMF_ERR ret = GPMF_OK;
-	// 
+	GPMF_stream* ms = new GPMF_stream;
+	// loop through every payload
 	for (uint32_t index = 0; index < num_payloads; index++) {
 		// get current payload
 		payloadsize = GetPayloadSize(mp4, index);
@@ -96,15 +97,13 @@ void getData(GPMF_stream *ms, size_t mp4, uint32_t num_payloads, uint32_t four_c
 
 int main(int argc, char* argv[]) {
 	GPMF_ERR ret = GPMF_OK;
-	GPMF_stream metadata_stream;
-	GPMF_stream* ms = &metadata_stream;
 	double metadatalength;
 	uint32_t accl = STR2FOURCC("ACCL");
 	uint32_t gyro = STR2FOURCC("GYRO");
 	uint32_t gps = STR2FOURCC("GPS5");
 
 	char* filename;
-	filename = "hero8.mp4";
+	filename = "samples/hero8.mp4";
 	size_t mp4 = OpenMP4Source(filename, MOV_GPMF_TRAK_TYPE, MOV_GPMF_TRAK_SUBTYPE);
 	if (mp4 == 0) {
 		printf("error: this file is either invalid or it does not contain GPMF data\n\n");
@@ -122,13 +121,13 @@ int main(int argc, char* argv[]) {
 		printf("Video Frame Rate: %.3f\n Number of Frames: %d", (float)rate_num/rate_de, frame_num);
 
 		// read acceleration data
-		getData(ms, mp4, num_payloads, accl);
+		getData(mp4, num_payloads, accl);
 
 		// read gyro data
-		getData(ms, mp4, num_payloads, gyro);
+		//getData(mp4, num_payloads, gyro);
 
 		// read GPS data
-		getData(ms, mp4, num_payloads, gps);
+		//getData(mp4, num_payloads, gps);
 	}
 
 	// end the stream
