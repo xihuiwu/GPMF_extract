@@ -11,17 +11,16 @@
 
 void getData(GPMF_stream *ms, size_t mp4, uint32_t num_payloads, uint32_t four_cc) {
 	char* filename;
-	switch (fourcc) {
-	case STR2FOURCC("ACCL"):
+	if (four_cc == STR2FOURCC("ACCL")){
 		filename = "ACCL";
-		break;
-	case STR2FOURCC("GYRO"):
+	}
+	else if (four_cc == STR2FOURCC("GYRO")){
 		filename = "GYRO";
-		break;
-	case STR2FOURCC("GPS5"):
+	}
+	else if (four_cc == STR2FOURCC("GPS5")){
 		filename = "GPS5";
-		break;
-	default:
+	}
+	else{
 		filename = "";
 	}
 
