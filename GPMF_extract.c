@@ -10,6 +10,33 @@
 #define MAX_UNITLEN		8
 
 void getData(GPMF_stream *ms, size_t mp4, uint32_t num_payloads, uint32_t four_cc) {
+	char* filename;
+	switch (fourcc) {
+	case STR2FOURCC("ACCL"):
+		filename = "ACCL";
+		break;
+	case STR2FOURCC("GYRO"):
+		filename = "GYRO";
+		break;
+	case STR2FOURCC("GPS5"):
+		filename = "GPS5";
+		break;
+	default:
+		filename = "";
+	}
+
+	if (filename == "") {
+		printf("Invalid file name");
+		return;
+	}
+
+	filename = strcat(filename, ".csv");
+	FILE* f = fopen(filename,"w");
+	if (f == NULL) {
+		printf("Not able to create CSV file");
+		return;
+	}
+
 	uint32_t* payload;
 	uint32_t payloadsize;
 	GPMF_ERR ret = GPMF_OK;
@@ -53,9 +80,10 @@ void getData(GPMF_stream *ms, size_t mp4, uint32_t num_payloads, uint32_t four_c
 						for (j = 0; j < num_elements; j++) {
 							double val = *ptr;
 							ptr++;
-							printf("%.2f ", val);
+							fprintf(f, "%f,", val);
+							//printf("%.2f ", val);
 						}
-						printf("\n");
+						fprintf(f, "\n");
 					}
 				}
 				free(tmpbuffer);
@@ -63,6 +91,8 @@ void getData(GPMF_stream *ms, size_t mp4, uint32_t num_payloads, uint32_t four_c
 		}
 		GPMF_Free(ms);
 	}
+	fclose(f);
+	return;
 }
 
 int main(int argc, char* argv[]) {
