@@ -9,7 +9,7 @@
 #define MAX_UNITS		64
 #define MAX_UNITLEN		8
 
-void getData(GPMF_stream *ms, size_t mp4, uint32_t num_payloads, uint32_t four_cc) {
+void getData(size_t mp4, uint32_t num_payloads, uint32_t four_cc) {
 	char* filename;
 	if (four_cc == STR2FOURCC("ACCL")){
 		filename = "ACCL";
@@ -39,7 +39,8 @@ void getData(GPMF_stream *ms, size_t mp4, uint32_t num_payloads, uint32_t four_c
 	uint32_t* payload;
 	uint32_t payloadsize;
 	GPMF_ERR ret = GPMF_OK;
-	GPMF_stream* ms = new GPMF_stream;
+	GPMF_stream gs;
+	GPMF_stream* gsptr = &gs;
 	// loop through every payload
 	for (uint32_t index = 0; index < num_payloads; index++) {
 		// get current payload
@@ -53,20 +54,20 @@ void getData(GPMF_stream *ms, size_t mp4, uint32_t num_payloads, uint32_t four_c
 		if (ret != GPMF_OK) break;
 
 		// initialize a GPMF_stream for parsing a particular buffer
-		ret = GPMF_Init(ms, payload, payloadsize);
+		ret = GPMF_Init(gsptr, payload, payloadsize);
 		if (ret != GPMF_OK) break;
 
 		// start reading the buffer
-		while (GPMF_OK == GPMF_FindNext(ms, STR2FOURCC("STRM"), GPMF_RECURSE_LEVELS | GPMF_TOLERANT)) {
+		while (GPMF_OK == GPMF_FindNext(gsptr, STR2FOURCC("STRM"), GPMF_RECURSE_LEVELS | GPMF_TOLERANT)) {
 			if (GPMF_VALID_FOURCC(four_cc)) {
-				if (GPMF_OK != GPMF_FindNext(ms, four_cc, GPMF_RECURSE_LEVELS | GPMF_TOLERANT)) {
+				if (GPMF_OK != GPMF_FindNext(gsptr, four_cc, GPMF_RECURSE_LEVELS | GPMF_TOLERANT)) {
 					continue;
 				}
 			}
 
-			uint32_t key = GPMF_Key(ms);
-			uint32_t num_samples = GPMF_Repeat(ms);
-			uint32_t num_elements = GPMF_ElementsInStruct(ms);
+			uint32_t key = GPMF_Key(gsptr);
+			uint32_t num_samples = GPMF_Repeat(gsptr);
+			uint32_t num_elements = GPMF_ElementsInStruct(gsptr);
 			uint32_t buffersize = num_samples * num_elements * sizeof(double);
 			double* tmpbuffer = (double*)malloc(buffersize);
 
@@ -74,7 +75,7 @@ void getData(GPMF_stream *ms, size_t mp4, uint32_t num_payloads, uint32_t four_c
 				uint32_t i, j;
 
 				// extract all samples from tmpbuffer
-				if (GPMF_OK == GPMF_ScaledData(ms, tmpbuffer, buffersize, 0, num_samples, GPMF_TYPE_DOUBLE)) {
+				if (GPMF_OK == GPMF_ScaledData(gsptr, tmpbuffer, buffersize, 0, num_samples, GPMF_TYPE_DOUBLE)) {
 					double* ptr = tmpbuffer;
 					for (i = 0; i < num_samples; i++) {
 						for (j = 0; j < num_elements; j++) {
@@ -89,14 +90,13 @@ void getData(GPMF_stream *ms, size_t mp4, uint32_t num_payloads, uint32_t four_c
 				free(tmpbuffer);
 			}
 		}
-		GPMF_Free(ms);
+		GPMF_Free(gsptr);
 	}
 	fclose(f);
 	return;
 }
 
 int main(int argc, char* argv[]) {
-	GPMF_ERR ret = GPMF_OK;
 	double metadatalength;
 	uint32_t accl = STR2FOURCC("ACCL");
 	uint32_t gyro = STR2FOURCC("GYRO");
