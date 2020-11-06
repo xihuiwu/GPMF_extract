@@ -6,19 +6,16 @@
 #include "source/GPMF_parser.h"
 #include "source/GPMF_mp4reader.h"
 
-#define MAX_UNITS		64
-#define MAX_UNITLEN		8
-
-void getData(size_t mp4, uint32_t num_payloads, uint32_t four_cc) {
+void getData(size_t mp4, uint32_t four_cc) {
 	char* filename;
 	if (four_cc == STR2FOURCC("ACCL")){
-		filename = "ACCL";
+		filename = "ACCL.csv";
 	}
 	else if (four_cc == STR2FOURCC("GYRO")){
-		filename = "GYRO";
+		filename = "GYRO.csv";
 	}
 	else if (four_cc == STR2FOURCC("GPS5")){
-		filename = "GPS5";
+		filename = "GPS5.csv";
 	}
 	else{
 		filename = "";
@@ -29,18 +26,17 @@ void getData(size_t mp4, uint32_t num_payloads, uint32_t four_cc) {
 		return;
 	}
 
-	filename = strcat(filename, ".csv");
 	FILE* f = fopen(filename,"w");
 	if (f == NULL) {
 		printf("Not able to create CSV file");
 		return;
 	}
 
-	uint32_t* payload;
+	uint32_t* payload = NULL;
 	uint32_t payloadsize;
-	GPMF_ERR ret = GPMF_OK;
+	GPMF_ERR ret;
 	GPMF_stream gs;
-	GPMF_stream* gsptr = &gs;
+	uint32_t num_payloads = GetNumberPayloads(mp4);
 	// loop through every payload
 	for (uint32_t index = 0; index < num_payloads; index++) {
 		// get current payload
@@ -54,20 +50,20 @@ void getData(size_t mp4, uint32_t num_payloads, uint32_t four_cc) {
 		if (ret != GPMF_OK) break;
 
 		// initialize a GPMF_stream for parsing a particular buffer
-		ret = GPMF_Init(gsptr, payload, payloadsize);
+		ret = GPMF_Init(&gs, payload, payloadsize);
 		if (ret != GPMF_OK) break;
 
 		// start reading the buffer
-		while (GPMF_OK == GPMF_FindNext(gsptr, STR2FOURCC("STRM"), GPMF_RECURSE_LEVELS | GPMF_TOLERANT)) {
+		while (GPMF_OK == GPMF_FindNext(&gs, STR2FOURCC("STRM"), GPMF_RECURSE_LEVELS | GPMF_TOLERANT)) {
 			if (GPMF_VALID_FOURCC(four_cc)) {
-				if (GPMF_OK != GPMF_FindNext(gsptr, four_cc, GPMF_RECURSE_LEVELS | GPMF_TOLERANT)) {
+				if (GPMF_OK != GPMF_FindNext(&gs, four_cc, GPMF_RECURSE_LEVELS | GPMF_TOLERANT)) {
 					continue;
 				}
 			}
 
-			uint32_t key = GPMF_Key(gsptr);
-			uint32_t num_samples = GPMF_Repeat(gsptr);
-			uint32_t num_elements = GPMF_ElementsInStruct(gsptr);
+			uint32_t key = GPMF_Key(&gs);
+			uint32_t num_samples = GPMF_Repeat(&gs);
+			uint32_t num_elements = GPMF_ElementsInStruct(&gs);
 			uint32_t buffersize = num_samples * num_elements * sizeof(double);
 			double* tmpbuffer = (double*)malloc(buffersize);
 
@@ -75,7 +71,7 @@ void getData(size_t mp4, uint32_t num_payloads, uint32_t four_cc) {
 				uint32_t i, j;
 
 				// extract all samples from tmpbuffer
-				if (GPMF_OK == GPMF_ScaledData(gsptr, tmpbuffer, buffersize, 0, num_samples, GPMF_TYPE_DOUBLE)) {
+				if (GPMF_OK == GPMF_ScaledData(&gs, tmpbuffer, buffersize, 0, num_samples, GPMF_TYPE_DOUBLE)) {
 					double* ptr = tmpbuffer;
 					for (i = 0; i < num_samples; i++) {
 						for (j = 0; j < num_elements; j++) {
@@ -85,12 +81,13 @@ void getData(size_t mp4, uint32_t num_payloads, uint32_t four_cc) {
 							//printf("%.2f ", val);
 						}
 						fprintf(f, "\n");
+						//printf("\n");
 					}
 				}
 				free(tmpbuffer);
 			}
 		}
-		GPMF_Free(gsptr);
+		GPMF_Free(&gs);
 	}
 	fclose(f);
 	return;
@@ -112,26 +109,23 @@ int main(int argc, char* argv[]) {
 
 	metadatalength = GetDuration(mp4);
 	if (metadatalength > 0.0) {
-		// get number of payloads
-		uint32_t num_payloads = GetNumberPayloads(mp4);
-
 		// get frame rate of the video file
 		uint32_t rate_num, rate_de;
 		uint32_t frame_num = GetVideoFrameRateAndCount(mp4, &rate_num, &rate_de);
-		printf("Video Frame Rate: %.3f\n Number of Frames: %d", (float)rate_num/rate_de, frame_num);
+		printf("Video Frame Rate: %.3f\nNumber of Frames: %d\n", (float)rate_num/rate_de, frame_num);
 
 		// read acceleration data
-		getData(mp4, num_payloads, accl);
+		getData(mp4, accl);
 
 		// read gyro data
-		//getData(mp4, num_payloads, gyro);
+		getData(mp4, gyro);
 
 		// read GPS data
-		//getData(mp4, num_payloads, gps);
+		getData(mp4, gps);
 	}
 
 	// end the stream
 	CloseSource(mp4);
 
-	return (int)ret;
+	return 0;
 }
