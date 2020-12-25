@@ -73,7 +73,9 @@ void getData(size_t mp4, uint32_t four_cc) {
 				// extract all samples from tmpbuffer
 				if (GPMF_OK == GPMF_ScaledData(&gs, tmpbuffer, buffersize, 0, num_samples, GPMF_TYPE_DOUBLE)) {
 					double* ptr = tmpbuffer;
+					double resolution = (end - begin)/num_samples;
 					for (i = 0; i < num_samples; i++) {
+						fprintf(f, "%f", begin+i*resolution);
 						for (j = 0; j < num_elements; j++) {
 							double val = *ptr;
 							ptr++;
