@@ -75,7 +75,7 @@ void getData(size_t mp4, uint32_t four_cc) {
 					double* ptr = tmpbuffer;
 					double resolution = (end - begin)/num_samples;
 					for (i = 0; i < num_samples; i++) {
-						fprintf(f, "%f", begin+i*resolution);
+						fprintf(f, "%f,", begin+i*resolution);
 						for (j = 0; j < num_elements; j++) {
 							double val = *ptr;
 							ptr++;
