@@ -14,5 +14,5 @@ Run the shell script\
 `./extract $file_dir$`
 
 ## Future Development
-* Add low-pass filter
-* Extract sensor data that are linked to every frame
+- [ ] Add low-pass filter
+- [ ] Extract sensor data that are linked to every frame
