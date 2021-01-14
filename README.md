@@ -8,7 +8,7 @@ This repository uses API of [GPMF Parser](https://github.com/gopro/gpmf-parser) 
 
 ## Compile
 Run the shell script\
-`./compile.sh`.
+`./compile.sh`
 
 ## Use
 `./extract $file_dir$`
