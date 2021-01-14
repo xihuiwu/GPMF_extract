@@ -7,7 +7,7 @@ This repository uses API of [GPMF Parser](https://github.com/gopro/gpmf-parser) 
 * GPS
 
 ## Compile
-Runing the shell script
+Run the shell script\
 `./compile.sh`.
 
 ## Use
