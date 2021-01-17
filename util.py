@@ -18,6 +18,7 @@ def readCsv(filename, cols):
 
 '''
 Helper function to filter out high frequency data
+infinite impulse response low pass filter is used here
 alpha is the smoothing factor which lies between 0 and 1
 '''
 def low_pass(data, alpha):
