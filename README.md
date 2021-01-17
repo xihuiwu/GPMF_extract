@@ -13,6 +13,10 @@ Run the shell script\
 ## Use
 `./extract $file_dir$`
 
+## Utility
+* low pass filter
+* data extraction from csv file
+
 ## Future Development
-- [ ] Add low-pass filter
+- [x] Add low-pass filter
 - [ ] Extract sensor data that are linked to every frame
